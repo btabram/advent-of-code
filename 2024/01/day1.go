@@ -1,24 +1,16 @@
 package main
 
 import (
+	utils "aoc2024"
 	"fmt"
 	"log"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
 func main() {
-	input, _ := os.ReadFile("input.txt")
-	lines := strings.Split(string(input), "\n")
+	lines := utils.ReadLines("input.txt")
 
 	// Parse ids lists
 	ids := [2][]int{make([]int, 0, len(lines)), make([]int, 0, len(lines))}
@@ -42,7 +34,7 @@ func main() {
 	var part1 int
 	for i, leftVal := range ids[0] {
 		rightVal := ids[1][i]
-		part1 += abs(leftVal - rightVal)
+		part1 += utils.Abs(leftVal - rightVal)
 	}
 
 	rightCounts := make(map[int]int)
