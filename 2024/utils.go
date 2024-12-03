@@ -14,17 +14,22 @@ func Abs(x int) int {
 	return x
 }
 
+// Int tries to parse the sting as an int.
+func Int(str string) int {
+	val, err := strconv.Atoi(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return val
+}
+
+// Ints splits a string and then tries to parse all fields as integers.
 func Ints(str string) []int {
 	fields := strings.Fields(str)
-
 	ints := make([]int, len(fields))
 
 	for i, strVal := range fields {
-		val, err := strconv.Atoi(strVal)
-		if err != nil {
-			log.Fatal(err)
-		}
-		ints[i] = val
+		ints[i] = Int(strVal)
 	}
 
 	return ints
