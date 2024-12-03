@@ -1,6 +1,6 @@
 # Advent of Code
 
-* 2015 -> Python (going through the backlog, WIP)
+* [2015](./2015#readme) -> Python (going through the backlog, WIP)
 * 2016 ->
 * 2017 -> 
 * [2018](./2018#readme) -> Rust (my first year!)
