@@ -9,4 +9,4 @@
 * [2021](./2021#readme) -> Haskell
 * [2022](./2022#readme) -> Go
 * [2023](./2023#readme) -> Typescript (not finished)
-* [2024](./2024#readme) -> Go
+* [2024](./2024#readme) -> Go (again)
