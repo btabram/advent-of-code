@@ -1,0 +1,9 @@
+[package]
+name = "day22"
+version = "0.1.0"
+authors = ["btabram <btabram@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+lazy_static = "1.2.0"
+pathfinding = "1.1"
