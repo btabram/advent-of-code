@@ -23,9 +23,11 @@ func Int(str string) int {
 	return val
 }
 
-// Ints splits a string and then tries to parse all fields as integers.
+// Ints splits a string on common separators and then tries to parse all fields as integers.
 func Ints(str string) []int {
-	fields := strings.Fields(str)
+	fields := strings.FieldsFunc(
+		str, func(r rune) bool { return r == ' ' || r == ',' || r == '|' },
+	)
 	ints := make([]int, len(fields))
 
 	for i, strVal := range fields {
