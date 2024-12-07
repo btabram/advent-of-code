@@ -1,6 +1,6 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { lcm } from "mathjs";
-import { resolve } from "path";
 
 const lines = readFileSync(resolve(__dirname, "input.txt"), "utf8").split("\n");
 
@@ -15,12 +15,12 @@ const nodes = new Map(
       throw new Error(`Failed to parse node: ${nodeStr}`);
     }
     return [name, { name, left, right }] as const;
-  })
+  }),
 );
 
 let current = "AAA";
 let step = 0;
-while (current != "ZZZ") {
+while (current !== "ZZZ") {
   const directionToTake = instructions[step % instructions.length]!;
   step += 1;
 
@@ -43,7 +43,7 @@ step = 0;
 // the first time that all ghosts are finished together is the lowest common
 // multiple of the individual cycle lengths. Then also assume that the cycle
 // lengths are the same as the start -> first finish lengths.
-let firstFinishes = new Array<number>(ghostPositions.length).fill(0);
+const firstFinishes = new Array<number>(ghostPositions.length).fill(0);
 while (!firstFinishes.every(Boolean)) {
   const directionToTake = instructions[step % instructions.length]!;
   step += 1;

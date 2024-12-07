@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const lines = readFileSync(resolve(__dirname, "input.txt"), "utf8").split("\n");
 
@@ -12,7 +12,7 @@ const cards = lines.map((line, i) => {
       numbersStr
         .split(" ")
         .filter(Boolean)
-        .map((number) => parseInt(number, 10))
+        .map((number) => Number.parseInt(number, 10)),
     ) as [number[], number[]];
   const id = i + 1; // Assume inputs are ordered
   return { id, winningNumbers, numbersYouHave };

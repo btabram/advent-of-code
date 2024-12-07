@@ -1,6 +1,6 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { zip } from "lodash";
-import { resolve } from "path";
 
 const input = readFileSync(resolve(__dirname, "input.txt"), "utf8");
 
@@ -9,14 +9,14 @@ const [times, distances] = input.split("\n").map((line) =>
     .split(" ")
     .slice(1)
     .filter(Boolean)
-    .map((n) => parseInt(n, 10))
+    .map((n) => Number.parseInt(n, 10)),
 );
 
 const races = (zip(times, distances) as [number, number][]).map(
   ([raceDuration, distanceRecord]) => ({
     raceDuration,
     distanceRecord,
-  })
+  }),
 );
 type Race = (typeof races)[number];
 
@@ -37,7 +37,7 @@ const part1 = races.map(waysToBeatRace).reduce((acc, score) => acc * score, 1);
 
 const part2Input = input
   .split("\n")
-  .map((line) => parseInt(line.split(":")[1]!.replaceAll(" ", ""), 10));
+  .map((line) => Number.parseInt(line.split(":")[1]!.replaceAll(" ", ""), 10));
 const part2Race = {
   raceDuration: part2Input[0]!,
   distanceRecord: part2Input[1]!,

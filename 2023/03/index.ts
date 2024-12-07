@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { uniq, uniqBy } from "lodash";
 
 type CoordStr = `${number},${number}`;
 
 const parse = (coord: CoordStr): [number, number] =>
-  coord.split(",").map((n) => parseInt(n, 10)) as [number, number];
+  coord.split(",").map((n) => Number.parseInt(n, 10)) as [number, number];
 
 const getNeighbours = (coord: CoordStr): CoordStr[] => {
   const [x, y] = parse(coord);
@@ -37,7 +37,7 @@ const buildNumber = (char: string, coord: CoordStr) => {
 };
 const tryFinishNumber = () => {
   if (buildingNumber) {
-    const value = parseInt(buildingNumber.map(([n]) => n).join(""), 10);
+    const value = Number.parseInt(buildingNumber.map(([n]) => n).join(""), 10);
     const coords = buildingNumber.map(([, c]) => c);
     numbers.push({ value, coords });
     buildingNumber = undefined;
@@ -73,8 +73,8 @@ for (const { value, coords } of numbers) {
 
 const numbersByCoord = new Map(
   numbers.flatMap(({ value, coords }, id) =>
-    coords.map((coord) => [coord, { id, value }] as const)
-  )
+    coords.map((coord) => [coord, { id, value }] as const),
+  ),
 );
 
 const gears = Array.from(symbols.entries())

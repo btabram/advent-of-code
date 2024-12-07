@@ -1,6 +1,6 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { groupBy, sortBy } from "lodash";
-import { resolve } from "path";
 
 const cardToStrength: Record<string, string> = {
   2: "b",
@@ -34,7 +34,7 @@ const hands = lines.map((line) => {
   // A line is like "32T3K 765".
   const [cards, bidStr] = line.split(" ") as [string, string];
 
-  const bid = parseInt(bidStr, 10);
+  const bid = Number.parseInt(bidStr, 10);
   const cardStrengths = cards
     .split("")
     .map((card) => cardToStrength[card]!)
@@ -96,7 +96,7 @@ const scoreRankedHands = (rankedHands: typeof hands) =>
   rankedHands.reduce((acc, hand, i) => acc + hand.bid * (i + 1), 0);
 
 const part1 = scoreRankedHands(
-  sortBy(hands, "normalTypeStrength", "cardStrengths")
+  sortBy(hands, "normalTypeStrength", "cardStrengths"),
 );
 
 const part2 = scoreRankedHands(
@@ -107,8 +107,8 @@ const part2 = scoreRankedHands(
       ...rest,
     })),
     "wildTypeStrength",
-    "cardStrengths"
-  )
+    "cardStrengths",
+  ),
 );
 
 console.log(`The answer the Part 1 is: ${part1}`);

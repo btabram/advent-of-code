@@ -1,16 +1,16 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { sum } from "lodash";
-import { resolve } from "path";
 
 const lines = readFileSync(resolve(__dirname, "input.txt"), "utf8").split("\n");
 
 const valueHistories = lines.map((line) =>
-  line.split(" ").map((v) => parseInt(v, 10))
+  line.split(" ").map((v) => Number.parseInt(v, 10)),
 );
 
 function extrapolate(
   valueHistory: number[],
-  direction: "forwards" | "backwards"
+  direction: "forwards" | "backwards",
 ): number {
   const diffs = valueHistory.slice(1).map((v, i) => v - valueHistory[i]!);
   // If the diffs are all the same then we don't need another level of diffing
@@ -21,9 +21,8 @@ function extrapolate(
     : extrapolate(diffs, direction);
   if (direction === "forwards") {
     return valueHistory[valueHistory.length - 1]! + changeToApply;
-  } else {
-    return valueHistory[0]! - changeToApply;
   }
+  return valueHistory[0]! - changeToApply;
 }
 
 const part1 = sum(valueHistories.map((vh) => extrapolate(vh, "forwards")));

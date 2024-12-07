@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const digitWords: Record<string, string> = {
   one: "1",
@@ -33,8 +33,8 @@ const sumCalibrationValues = (baseDigitRegex: string) =>
     .reduce((a, b) => a + b, 0);
 
 console.log(
-  `The answer the Part 1 is: ${sumCalibrationValues(part1DigitRegex)}`
+  `The answer the Part 1 is: ${sumCalibrationValues(part1DigitRegex)}`,
 );
 console.log(
-  `The answer the Part 2 is: ${sumCalibrationValues(part2DigitRegex)}`
+  `The answer the Part 2 is: ${sumCalibrationValues(part2DigitRegex)}`,
 );

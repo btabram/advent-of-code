@@ -1,6 +1,6 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { chunk, min } from "lodash";
-import { resolve } from "path";
 
 const input = readFileSync(resolve(__dirname, "input.txt"), "utf8");
 
@@ -9,7 +9,7 @@ const [seedStr, ...mapStrs] = input.split("\n\n");
 const seeds = seedStr!
   .split(" ")
   .slice(1)
-  .map((n) => parseInt(n, 10));
+  .map((n) => Number.parseInt(n, 10));
 
 const maps = mapStrs.map((mapStr) => {
   const rawMap = mapStr.split("\n");
@@ -20,7 +20,7 @@ const maps = mapStrs.map((mapStr) => {
   const ranges = rawMap.slice(1).map((line) => {
     const [destRangeStart, sourceRangeStart, rangeLength] = line
       .split(" ")
-      .map((n) => parseInt(n, 10)) as [number, number, number];
+      .map((n) => Number.parseInt(n, 10)) as [number, number, number];
     return {
       destRangeStart,
       sourceRangeStart,
@@ -44,7 +44,7 @@ const convertWithMap = ({ ranges }: Map, sourceNumber: number) => {
 
 // Assuming that the maps are all in the right order here.
 const fullyConvertedSeeds = seeds.map((seed) =>
-  maps.reduce((acc, map) => convertWithMap(map, acc), seed)
+  maps.reduce((acc, map) => convertWithMap(map, acc), seed),
 );
 const part1 = min(fullyConvertedSeeds);
 
@@ -52,7 +52,7 @@ const seedRanges = (chunk(seeds, 2) as [number, number][]).map(
   ([start, length]) => ({
     start,
     end: start + length,
-  })
+  }),
 );
 type Range = (typeof seedRanges)[number];
 
@@ -64,14 +64,14 @@ const convertRangeWithMap = ({ ranges }: Map, sourceRange: Range) => {
   while (current < end) {
     const [inMappingRange] = ranges.filter(
       ({ sourceRangeStart, sourceRangeEnd }) =>
-        current >= sourceRangeStart && current < sourceRangeEnd
+        current >= sourceRangeStart && current < sourceRangeEnd,
     );
     const nextMappingRangeStart = inMappingRange
       ? undefined
       : min(
           ranges
             .filter(({ destRangeStart }) => destRangeStart >= current)
-            .map(({ destRangeStart }) => destRangeStart)
+            .map(({ destRangeStart }) => destRangeStart),
         );
 
     const destRangeStart = inMappingRange
@@ -85,7 +85,7 @@ const convertRangeWithMap = ({ ranges }: Map, sourceRange: Range) => {
       inMappingRange
         ? inMappingRange.sourceRangeEnd - current
         : nextMappingRangeStart! - current,
-      end - current
+      end - current,
     );
 
     destRages.push({
@@ -99,8 +99,8 @@ const convertRangeWithMap = ({ ranges }: Map, sourceRange: Range) => {
 };
 
 const fullyConvertedRanges = maps.reduce(
-  (acc, map) => acc.map((r) => convertRangeWithMap(map, r)).flat(),
-  seedRanges
+  (acc, map) => acc.flatMap((r) => convertRangeWithMap(map, r)),
+  seedRanges,
 );
 const part2 = min(fullyConvertedRanges.map(({ start }) => start));
 

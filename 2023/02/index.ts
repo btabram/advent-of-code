@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 type Colour = "red" | "green" | "blue";
 
@@ -8,14 +8,14 @@ const lines = readFileSync(resolve(__dirname, "input.txt"), "utf8").split("\n");
 const games = lines.map((line, i) => {
   // Lines are like "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green".
   const rounds = line.split(";").map((round) => {
-    let parsed = new Map<Colour, number>();
+    const parsed = new Map<Colour, number>();
     for (const [, rawCount, colour] of round.matchAll(
-      /([0-9]+) (red|green|blue)/g
+      /([0-9]+) (red|green|blue)/g,
     )) {
       if (!rawCount || !colour) {
         throw new Error(`Failed to parse round: ${round}`);
       }
-      parsed.set(colour as Colour, parseInt(rawCount, 10));
+      parsed.set(colour as Colour, Number.parseInt(rawCount, 10));
     }
     return parsed;
   });
