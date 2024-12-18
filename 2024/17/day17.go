@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strings"
 )
 
 // A 3-bit computer a described in the puzzle input
@@ -34,7 +35,7 @@ func (c *computer) comboValue(operand int) int {
 
 // Divide register A by 2 to the power of the combo operand. Use by multiple instructions
 func (c *computer) divisionImpl(operand int) int {
-	//return c.regA / (1 << c.comboValue(operand))
+	// Integer division by a power of 2 is equivalent to bit shifting downwards
 	return c.regA >> c.comboValue(operand)
 }
 
@@ -82,126 +83,98 @@ func (c *computer) run() {
 	}
 }
 
+// Didn't bother writing an input parser, these are just copied from 'input.txt'
+var inputA = 60589763
+var program = []int{2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0}
+
 func main() {
-	test := computer{
-		regA:    729,
-		program: []int{0, 1, 5, 4, 3, 0},
+	part1Computer := computer{
+		regA:    inputA,
+		program: program,
 	}
 
-	test.run()
-	fmt.Println(test)
+	// For part 1 we just need to run the program as-is and format the output a bit
+	part1Computer.run()
+	output := fmt.Sprintf("%#v", part1Computer.output)
+	part1 := strings.ReplaceAll(output[6:len(output)-1], " ", "")
 
-	p1 := computer{
-		regA:    100032, // 0b011_000_011,
-		program: []int{2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0},
-	}
-	p1.run()
-	fmt.Println(p1)
+	// For part 2 we've got to reverse engineer the program and work out the minimum initial value
+	// for register A that will make the program output itself. Trying to understand the program:
+	//
+	// 2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0
+	//
+	// Split into pairs of operations and operands:
+	//
+	// 2,4 -> set B to A mod 8 (set B to the last 3 bits of A)
+	//
+	// 1,5 -> bitwise xor B with 5
+	//
+	// 7,5 -> set C to A / 2**B (set C to some bits from the middle of A)
+	//
+	// 1,6 -> bitwise xor B with 6
+	//
+	// 4,1 -> bitwise xor B with C
+	//
+	// 5,5 -> output B mod 8
+	//
+	// 0,3 -> set A to A / 2**3 (bit shift A 3 places to the right, dropping last 3 bits)
+	//
+	// 3,0 -> jump back to start if A != 0
+	//
+	// So we see that the program loops, consuming the 3 least significant bits from the register A
+	// value on each iteration. There's no state carried over between iterations except for the A
+	// value (B and C are assigned before use). The value that gets outputted depends on the last
+	// three bits of A but also some of the other bits (via register C).
+	//
+	// It's simplest to look at the last value we need to output, by this point our register A value
+	// will have been entirely consumed (since we want the minimum working input) so it'll just be
+	// three bits (value 0-7) and we don't need to worry about higher bits getting involved via
+	// register C. Once we have the last value, we can look at the next last value and so on. Since
+	// we've already worked out the later values we know what the higher bits are and can evaluate
+	// the register C stuff. Note that there's multiple possible solutions in some cases and it's
+	// hard to work out in advance which solutions will turn out to be dead-ends because of the
+	// register C stuff so we just track them all at once, rather than bothering with backtracking.
+	toOutput := make([]int, len(program))
+	copy(toOutput, program)
+	slices.Reverse(toOutput)
 
-	toFind := []int{2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0}
-	slices.Reverse(toFind)
-
-	findNexts := func(soFar, next int) []int {
-		ns := []int{}
+	findNextBits := func(bitsSoFar, nextTargetOutput int) []int {
+		var nextBits []int
 
 		for v := range 8 {
 			c := computer{
-				regA:    (soFar << 3) + v,
-				program: []int{2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0},
+				regA:    (bitsSoFar << 3) + v,
+				program: program,
 			}
 			c.run()
-			done := c.output[0]
-			if done == next {
-				ns = append(ns, v)
+			newOutput := c.output[0]
+			if newOutput == nextTargetOutput {
+				nextBits = append(nextBits, v)
 			}
 		}
 
-		return ns
+		return nextBits
 	}
 
-	soFars := []int{0}
-	for _, f := range toFind {
-		for i, sf := range soFars {
-			if sf == -1 {
-				continue // skip deadends
+	solutions := []int{0}
+	for _, targetOutput := range toOutput {
+		var nextSolutions []int
+		for _, solutionSoFar := range solutions {
+			nextBits := findNextBits(solutionSoFar, targetOutput)
+			for _, value := range nextBits {
+				nextSolutions = append(nextSolutions, (solutionSoFar<<3)+value)
 			}
+		}
+		solutions = nextSolutions
+	}
 
-			nexts := findNexts(sf, f)
-
-			if len(nexts) == 0 {
-				soFars[i] = -1
-			}
-
-			for j, nx := range nexts {
-				if j == 0 {
-					soFars[i] = (sf << 3) + nx
-				} else {
-					soFars = append(soFars, (sf<<3)+nx)
-				}
-			}
+	part2 := math.MaxInt
+	for _, s := range solutions {
+		if s < part2 {
+			part2 = s
 		}
 	}
 
-	min := math.MaxInt
-	for _, v := range soFars {
-		if v != -1 && v < min {
-			min = v
-		}
-	}
-
-	p := computer{
-		regA:    min,
-		program: []int{2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0},
-	}
-	p.run()
-	fmt.Println(p)
-	fmt.Println(min)
-
-	//fmt.Printf("The answer to Part 1 is %v\n", part1)
-	//fmt.Printf("The answer to Part 2 is %v\n", part2)
+	fmt.Printf("The answer to Part 1 is %v\n", part1)
+	fmt.Printf("The answer to Part 2 is %v\n", part2)
 }
-
-/*
-	2, 4, 1, 5, 7, 5, 1, 6, 4, 1, 5, 5, 0, 3, 3, 0
-
-	2,4 -> set B to A%8
-
-	1,5 -> bitwise xor B with 5
-
-	7,5 -> set C to A / 2**B
-
-	1,6 -> bitwise xor B with 6
-
-	4,1 -> bitwise xor B with C
-
-	5,5 -> output B%8
-
-	0,3 -> set A to A / 2**3
-
-	3,0 -> jump back to start if A != 0
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-	B becomes (A % 8) ^ 5 -> only depends on last three bts of A
-
-	C = A / (2 ** ((A % 8) ^ 5)) -> A bit shifted down by B
-
-	/6 at the end effectively bit shifts 3 places to the right (dropping last 3 bits)
-
-
-	111 -> 7
-	110 -> 6
-	101 -> 5
-	100 -> 4
-	011 -> 3
-	010 -> 2
-	001 -> 1
-	000 -> 0
-
-
-	~~~~~~~~~~~~~~~~~~
-
-	* last output needs to be 0, so most significant octet must be 3
-	* prev output needs to be 3, smallest fitting octet is 0 (C = 0)
-	* next needs to be 3 again... what about C!?
-*/
