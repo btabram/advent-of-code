@@ -120,5 +120,5 @@ func AStarPathfinding[node comparable](
 		}
 	}
 
-	panic("Failed to find a path")
+	return -1, nil // Failed to find a path
 }
