@@ -10,3 +10,4 @@
 * [2022](./2022#readme) -> Go
 * [2023](./2023#readme) -> Typescript (not finished)
 * [2024](./2024#readme) -> Go (again)
+* [2025](./2025#readme) -> Dart
