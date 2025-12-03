@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import '../lib/utils.dart';
+
 enum Direction { left, right }
 
 void main() {
-  final lines = File('input.txt').readAsLinesSync();
+  final lines = ReadInput();
 
   final rotations = <({Direction direction, int distance})>[];
   for (final line in lines) {
