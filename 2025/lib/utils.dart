@@ -10,3 +10,7 @@ List<String> ReadInput({bool testing = false}) {
 int sum(int a, int b) {
   return a + b;
 }
+
+int product(int a, int b) {
+  return a * b;
+}
